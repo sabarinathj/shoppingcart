@@ -1,37 +1,165 @@
 var result;
+function getProducts(data = []){
+    const itemsListContainer = document.getElementById('items-list')
+    var itemsList;
+
+    data.forEach((element, index) => {
+        if(element !== undefined){
+            itemsList += `<div class='shop-item col-sm-4'>
+            <span class='shop-item-title'>${element.name}</span>
+            <img class='shop-item-image' src='${element.imageURL}'>
+            <div class='shop-item-details'>
+                <span class="currency">Rs </span><span class='shop-item-price'>${element.price}</span>
+                <button class='btn btn-primary shop-item-button' type='button' onclick="addToCartClicked(event, ${index})">ADD TO CART</button>
+            </div>
+        </div>`;
+        }    
+    });
+
+    itemsListContainer.innerHTML += itemsList;
+}
+
+let filtersChecked = [];
+function handleClick(event){
+    //console.log('handleClick: ', event.name);
+    //filtersChecked = [];
+    if(event.checked) filtersChecked.push(event.name);
+    if(!event.checked) {
+        const index = filtersChecked.indexOf(event.name);
+        if(index > -1){
+            filtersChecked.splice(index, 1);
+        }
+    }
+    console.log('filtersChecked', filtersChecked);
+    getFilteredRecordsBySearch(searchText ,filtersChecked);
+}
+function _getFiltersValues(filterValues){
+    let list;
+    filterValues.forEach(item => {
+        list += `<label class="form-check">
+        <input class="form-check-input" type="checkbox"  onclick="handleClick(this)" name="${item}" value="${item}">
+        <span class="form-check-label">
+            ${item}
+        </span>
+    </label>`;
+    });
+    return list;
+}
+
+function getFilters(data = []){
+    const tobeFiltered = ['color', 'gender', 'price', 'type'];
+    const filtersObj = {};
+    let tempArr = [];
+    //var parsedData = JSON.parse(data);
+    data.forEach((item, index, self) => {
+        if(index === tobeFiltered.length) return;
+        self.forEach((val, indx) => {
+            if(tobeFiltered[index] in item){
+                if(!tempArr.includes(val[tobeFiltered[index]])) {
+                    tempArr.push(val[tobeFiltered[index]])
+                }
+            }
+        })
+        filtersObj[tobeFiltered[index]] = tempArr;
+        tempArr = [];
+    })
+    //console.log('filtersObj', filtersObj);
+    
+    const sidebarFiltersContainer = document.getElementById('filters');
+    var filtersList;
+    
+    for(key in filtersObj){
+        //console.log('for in: ', key, filtersObj[key]);
+        filtersList += `
+        <div class="card">
+            <article class="card-group-item">
+                <header class="card-header">
+                    <h6 class="title">${key}</h6>
+                </header>
+                <div class="filter-content">
+                    <div class="card-body">
+                        <form>
+                            ${_getFiltersValues(filtersObj[key])}
+                        </form>
+                    </div>
+                </div>
+	        </article>
+        </div>`;
+    }
+    //console.log('filtersList: ', filtersList);
+    sidebarFiltersContainer.innerHTML += filtersList;
+}
+
 function getRecords(searchText = ''){
     fetch(' https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json').then(r=>r.json()).then(data => 
     {
-        console.log(data);
-        result = data;
-        //use data
-        const itemsListContainer = document.getElementById('items-list')
-        var itemsList;
-        data.forEach((element, index) => {
-            itemsList += `<div class='shop-item'>
-                <span class='shop-item-title'>${element.name}</span>
-                <img class='shop-item-image' src='${element.imageURL}'>
-                <div class='shop-item-details'>
-                    <span class="currency">Rs </span><span class='shop-item-price'>${element.price}</span>
-                    <button class='btn btn-primary shop-item-button' type='button' onclick="addToCartClicked(event, ${index})">ADD TO CART</button>
-                </div>
-            </div>`;    
-        });
-        
-        
-        itemsListContainer.innerHTML += itemsList;
+        console.log('old data: ', data);
+        const filterUndefinedData = data.filter(item => item !== undefined);
+        //console.log('test: ', typeof filterUndefinedData, filterUndefinedData.length);
+        // data = JSON.parse(data);
+        result = [...data];
+        /* to get products */
+        getProducts([...data]);
+        /** to get filters */
+        getFilters([...data]);
     });
 }
 
+function getLoaders(){
+    let loader = document.createElement('div');
+    loader.innerHTML = `<div class="spinner-border" id="loading" role="status">
+    <span class="sr-only">Loading...</span>
+    </div>`;
+    document.getElementById('body').appendChild(loader);
+}
+
 window.onload = () => {
+    getLoaders();
     getRecords('');
+    /** for removing loading icon once DOM is created */
+    var element = document.getElementById("loading");
+    element.parentNode.removeChild(element);
+    /**End for removing loading icon once DOM is created */
+    //getFilters('');
 };
 
+function checkSidebarFilteredProducts(val, item){
+        return val.toLowerCase() === (item.color.toLowerCase()
+         || item.type.toLowerCase() 
+         || item.gender.toLowerCase() 
+         || item.price.toLowerCase())
+}
+
+let oldSearch;
+let searchFilterResult;
+let searchFilterResultCache;
+function getFilteredRecordsBySearch(text = '', filtersChecked = []){
+    
+    //console.log('getFilteredRecordsBySearch', result);
+    if(text && text !== oldSearch){
+        searchFilterResult = (searchFilterResult || result).filter(item => item.name.toLowerCase().includes(text.toLowerCase()));
+        searchFilterResultCache = searchFilterResult;
+    }
+    oldSearch = text;
+    if(filtersChecked.length !== 0){
+        const sidebarResult = (searchFilterResultCache || result).filter((item, index) => {
+            /** needs improvement in below filter */
+            return filtersChecked.some(val => checkSidebarFilteredProducts(val, item))
+        });
+        //console.log('sidebarResult', sidebarResult);
+        searchFilterResult = sidebarResult;
+    }
+    console.log('searchFilterResult', searchFilterResult);
+    getProducts(searchFilterResult);
+}
+
 // let counter = 1;
+let searchText;
 const makeAPI = () => {
-  var searchText = document.getElementById('search').value;
+  searchText = document.getElementById('search').value;
   console.log("trigerring API with value: ", searchText, "and API triggered ");
-  getRecords(searchText);
+  getFilteredRecordsBySearch(searchText, filtersChecked);
+  //getFilters()
 }
 
 // getResults returns a function for maintaining instances

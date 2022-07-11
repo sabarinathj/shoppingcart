@@ -7,18 +7,11 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
         <link rel="stylesheet" href="styles.css" />
     </head>
-    <body>
+    <body id="body">
         <header class="main-header">
-            <!-- <nav class="main-nav nav">
-                <ul>
-                    <li><a href="index.html">HOME</a></li>
-                    <li><a href="store.html">STORE</a></li>
-                    <li><a href="about.html">ABOUT</a></li>
-                </ul>
-            </nav> -->
             <div class="container">
-                <form>
-                    <div class="form-group">
+                <form  autocomplete="off">
+                    <div class="form-group autocomplete">
                       <label for="search">Search</label>
                       <input type="text" class="form-control" id="search" aria-describedby="searchHelp" onkeyup="searchStore()">
                       <small id="searchHelp" class="form-text text-muted">search for any product</small>
@@ -28,40 +21,20 @@
             </div>
             <h1 class="band-name band-name-large">Shopping site</h1>
         </header>
-        <section class="container">
-            <h2 class="section-header">MUSIC</h2>
+        <section class="container-fluid pt-3">
+            
             <div class="row">
-                <div class="col-sm-3"></div>
+                <div class="col-sm-3" id="filters">
+
+                </div>
                 <div class="col-sm-9">
-                    <div class="row row-cols-3">
-                        <div id="items-list" class="shop-items col">
-                
-                        </div>
+                    <div id="items-list" class="shop-items col">
+            
                     </div>
                 </div>
             </div>
         </section>
-        <section class="container content-section">
-            <h2 class="section-header">MERCH</h2>
-            <div class="shop-items">
-                <div class="shop-item">
-                    <span class="shop-item-title">T-Shirt</span>
-                    <img class="shop-item-image" src="Images/Shirt.png">
-                    <div class="shop-item-details">
-                        <span class="shop-item-price">$19.99</span>
-                        <button class="btn btn-primary shop-item-button" type="button">ADD TO CART</button>
-                    </div>
-                </div>
-                <div class="shop-item">
-                    <span class="shop-item-title">Coffee Cup</span>
-                    <img class="shop-item-image" src="Images/Cofee.png">
-                    <div class="shop-item-details">
-                        <span class="shop-item-price">$6.99</span>
-                        <button class="btn btn-primary shop-item-button" type="button">ADD TO CART</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+        
         <section class="container content-section">
             <h2 class="section-header">CART</h2>
             <div class="cart-row">
@@ -79,7 +52,7 @@
         </section>
         <footer class="main-footer">
             <div class="container main-footer-container">
-                <h3 class="band-name">The Generics</h3>
+                <h3 class="band-name">By Sabarinath</h3>
                 <ul class="nav footer-nav">
                     <li>
                         <a href="https://www.youtube.com" target="_blank">
